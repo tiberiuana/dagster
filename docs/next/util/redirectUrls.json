@@ -713,5 +713,10 @@
     "source": "/guides/dagster-pipes/:slug*",
     "destination": "/concepts/dagster-pipes/:slug*",
     "statusCode": 302
+  },
+  {
+    "source": "/integrations/airflow/migrating-to-dagster",
+    "destination": "/migrations/migrating-airflow-to-dagster",
+    "statusCode": 302
   }
 ]
