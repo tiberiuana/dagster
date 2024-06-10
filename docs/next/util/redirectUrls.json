@@ -716,7 +716,7 @@
   },
   {
     "source": "/integrations/airflow/migrating-to-dagster",
-    "destination": "/migration-guides/migrating-airflow-to-dagster",
+    "destination": "/guides/migration-guides/migrating-airflow-to-dagster",
     "statusCode": 302
   }
 ]
