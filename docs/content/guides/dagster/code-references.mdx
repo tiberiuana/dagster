@@ -83,6 +83,7 @@ from dagster._core.definitions.metadata import (
             code_references=[
                 LocalFileCodeReference(
                     file_path=os.path.join(os.path.dirname(__file__), "source.yaml"),
+                    # Label and line number are optional
                     line_number=1,
                     label="Model YAML",
                 )
