@@ -2382,7 +2382,7 @@ def test_asset_backfill_from_asset_graph_subset(
         PartitionBackfill.from_asset_graph_subset(
             backfill_id="backfill_from_asset_graph_subset",
             tags={"custom_tag_key": "custom_tag_value"},
-            backfill_timestamp=pendulum.now().timestamp(),
+            backfill_timestamp=get_current_timestamp(),
             dynamic_partitions_store=instance,
             title=None,
             description=None,
@@ -2444,7 +2444,7 @@ def test_asset_backfill_from_asset_graph_subset_with_static_and_time_partitions(
         PartitionBackfill.from_asset_graph_subset(
             backfill_id="backfill_from_asset_graph_subset_with_static_and_time_partitions",
             tags={"custom_tag_key": "custom_tag_value"},
-            backfill_timestamp=pendulum.now().timestamp(),
+            backfill_timestamp=get_current_timestamp(),
             dynamic_partitions_store=instance,
             title=None,
             description=None,
