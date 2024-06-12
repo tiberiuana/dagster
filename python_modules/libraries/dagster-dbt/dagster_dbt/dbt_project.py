@@ -274,7 +274,7 @@ class DbtProject(DagsterModel):
                 my_project = DbtProject(project_dir=Path("path/to/dbt_project"))
 
 
-                @dbt_assets(manifest=my_project.prepared())
+                @dbt_assets(manifest=my_project.prepared().manifest_path)
                 def my_dbt_asset():
                     ...
         """
