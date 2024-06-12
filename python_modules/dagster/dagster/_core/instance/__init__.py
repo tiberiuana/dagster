@@ -1169,11 +1169,13 @@ class DagsterInstance(DynamicPartitionsStore):
                 asset_selection=asset_selection,
                 op_selection=op_selection,
             )
+
+        # The default state of step_keys_to_execute = None means execute the op/asset selection
         step_keys_to_execute = None
-
         if execution_plan:
+            # If an execution_plan was explicitly passed down,
+            # record that step_keys_to_execute on the run
             step_keys_to_execute = execution_plan.step_keys_to_execute
-
         else:
             execution_plan = create_execution_plan(
                 job=job_def,
@@ -1182,6 +1184,10 @@ class DagsterInstance(DynamicPartitionsStore):
                 tags=tags,
                 repository_load_data=repository_load_data,
             )
+            # When a run is using memoization, the execution plan build will resolve
+            # what steps to run, so record step_keys_to_execute in that condition
+            if job_def.is_using_memoization(tags or {}):
+                step_keys_to_execute = execution_plan.step_keys_to_execute
 
         return self.create_run(
             job_name=job_def.name,

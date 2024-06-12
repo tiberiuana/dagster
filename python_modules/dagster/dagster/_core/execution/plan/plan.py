@@ -156,7 +156,7 @@ class _PlanBuilder:
         root_inputs: List[
             Union[StepInput, UnresolvedMappedStepInput, UnresolvedCollectStepInput]
         ] = []
-        # Recursively bjob_defd the execution plan starting at the root pipeline
+        # Recursively build the execution plan starting at the root pipeline
         for input_def in self.job_def.graph.input_defs:
             input_name = input_def.name
 
@@ -197,7 +197,6 @@ class _PlanBuilder:
         )
 
         executor_name = self.resolved_run_config.execution.execution_engine_name
-        step_output_versions = self.known_state.step_output_versions if self.known_state else []
 
         plan = ExecutionPlan(
             step_dict,
@@ -217,22 +216,23 @@ class _PlanBuilder:
             repository_load_data=self.repository_load_data,
         )
 
-        if self.step_keys_to_execute is not None:
-            plan = plan.build_subset_plan(
-                self.step_keys_to_execute, self.job_def, self.resolved_run_config
-            )
-
-        # Expects that if step_keys_to_execute was set, that the `plan` variable will have the
-        # reflected step_keys_to_execute
-        if self.job_def.is_using_memoization(self._tags) and len(step_output_versions) == 0:
+        if (
+            self.job_def.is_using_memoization(self._tags)
+            and self.known_state.step_output_versions == {}
+        ):
             if self._instance_ref is None:
                 raise DagsterInvariantViolationError(
                     "Attempted to build memoized execution plan without providing a persistent "
                     "DagsterInstance to create_execution_plan."
                 )
             instance = DagsterInstance.from_ref(self._instance_ref)
+
             plan = plan.build_memoized_plan(
                 self.job_def, self.resolved_run_config, instance, self.step_keys_to_execute
+            )
+        elif self.step_keys_to_execute is not None:
+            plan = plan.build_subset_plan(
+                self.step_keys_to_execute, self.job_def, self.resolved_run_config
             )
 
         return plan
@@ -864,13 +864,9 @@ class ExecutionPlan(
 
         # If step output versions were provided when constructing the subset plan, add them to the
         # known state.
+        known_state = self.known_state
         if len(step_output_versions) > 0:
-            if self.known_state:
-                known_state = self.known_state._replace(step_output_versions=step_output_versions)
-            else:
-                known_state = KnownExecutionState(step_output_versions=step_output_versions)  # type: ignore  # (possible none)
-        else:
-            known_state = self.known_state
+            known_state = self.known_state._replace(step_output_versions=step_output_versions)
 
         return ExecutionPlan(
             self.step_dict,
@@ -908,6 +904,11 @@ class ExecutionPlan(
         from ...storage.memoizable_io_manager import MemoizableIOManager
         from ..build_resources import build_resources, initialize_console_manager
         from ..resources_init import get_dependencies, resolve_resource_dependencies
+
+        check.invariant(
+            self.known_state.step_output_versions == {},
+            "Should not be building memoized plan twice.",
+        )
 
         # Memoization cannot be used with dynamic orchestration yet.
         # Tracking: https://github.com/dagster-io/dagster/issues/4451
