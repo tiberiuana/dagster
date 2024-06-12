@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional, Sequence, Union
 
 import yaml
-from dagster._annotations import experimental
+from dagster._annotations import experimental, public
 from dagster._model import DagsterModel
 from dagster._utils import run_with_concurrent_update_guard
 
@@ -237,8 +237,12 @@ class DbtProject(DagsterModel):
             manifest_preparer=manifest_preparer,
         )
 
+    @public
     def prepared(self) -> "DbtProject":
         """Execute the preparation process for a dbt project and return the DbtProject object when complete.
+
+        Returns:
+            DbtProject: The current representation of the dbt project.
 
         Examples:
             Preparing a DbtProject on creation (recommended):
