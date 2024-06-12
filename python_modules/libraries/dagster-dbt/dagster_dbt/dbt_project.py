@@ -245,7 +245,7 @@ class DbtProject(DagsterModel):
             DbtProject: The current representation of the dbt project.
 
         Examples:
-            Preparing a DbtProject on creation (recommended):
+            Preparing a DbtProject on creation:
 
             .. code-block:: python
 
